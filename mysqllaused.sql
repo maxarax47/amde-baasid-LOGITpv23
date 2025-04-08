@@ -12,7 +12,7 @@ CREATE DATABASE plohhotnitsenkoLOGITpv23;
 USE plohhotnitsenkoLOGITpv23;
 
 --taabeli loomine
---identity(1,1) - ise täidab tabeli 1,2,3...
+--AUTO_INCREMENT - ise täidab tabeli 1,2,3...
 CREATE TABLE inimene(
 inimeneID int Primary Key identity(1,1),
 nimi varchar(50) unique, 
