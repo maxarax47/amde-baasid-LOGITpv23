@@ -1,0 +1,84 @@
+use Plohhotnitsenko;
+create table filmid (
+filmnimi varchar (255),
+filmpikkus int
+);
+
+drop table filmid;
+
+INSERT INTO filmid (filmnimi, filmpikkus) VALUES
+('Pulp Fiction', 60),
+('Vabastatud Django', 90),
+('Ongi Karloson!', 120),
+('Roheline elevant', 26),
+('Kaardid', 98);
+-----
+Create procedure filmid1taht
+@taht char(1)
+as
+begin
+select * from filmid 
+where filmnimi like concat (@taht, '%');
+end
+-----
+exec filmid1taht 'P';
+
+
+-----
+CREATE procedure filmidsisaldabtaht
+@taht char(1)
+AS
+BEGIN
+SELECT * from filmid
+where filmnimi like concat ('%', @taht , '%');
+END
+-----
+exec filmidsisaldabtaht 'R';
+
+
+
+----
+create procedure keskminepikkus 
+AS BEGIN
+select AVG(filmpikkus) as 'keskmine pikkus' from filmid
+END
+----
+exec keskminepikkus;
+------
+alter procedure [dbo].[keskminepikkus]
+AS
+BEGIN
+SELECT
+AVG(filmpikkus) as 'keskmine pikkus',
+MAX(filmpikkus) as 'max pikkus',
+count(filmnimi) as 'filmide kogus'
+from filmid
+end
+-------
+
+
+---keeruline protseduur
+
+CREATE PROCEDURE tabelimuudatus
+@tegevus varchar(10),
+@tabelinimi varchar(25),
+@veerunimi varchar(25),
+@tyyp varchar(25) =null
+AS
+BEGIN
+DECLARE @sqltegevus as varchar(max)
+set @sqltegevus=case 
+when @tegevus='add' then concat('ALTER TABLE ', @tabelinimi, ' ADD ', @veerunimi, ' ', @tyyp)
+when @tegevus='drop' then concat('ALTER TABLE ', @tabelinimi, ' DROP COLUMN ', @veerunimi)
+END;
+print @sqltegevus;
+begin 
+EXEC (@sqltegevus);
+END
+END;
+--добавление столбца
+EXEC tabelimuudatus @tegevus='add', @tabelinimi='filmid', @veerunimi='test', @tyyp='int';
+--удаление столбца
+EXEC tabelimuudatus @tegevus='drop', @tabelinimi='filmid', @veerunimi='test';
+
+select * from filmid;
