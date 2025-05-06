@@ -1,0 +1,67 @@
+create database trigerLOGIT;
+
+use trigerLOGIT
+
+create table toode(
+toodeID int primary key identity(1,1),
+toodeNimetus varchar(25),
+toodeHind decimal(5,2))
+--taabel logi, mis täidab triger
+create table logi(
+id int primary key identity(1,1),
+tegevus varchar(25),
+kuupaev datetime,
+andmed text)
+---INSERT triger, mis jägib andmete lisamine toode tabeliss
+create trigger toodeLisamine 
+on toode 
+for insert
+as
+insert into logi(tegevus, kuupaev, andmed)
+select 'toode on lisatud', 
+getdate(),
+inserted.toodeNimetus
+from inserted;
+
+drop trigger toodeLisamine;
+---kontroll
+insert into toode(toodeNimetus, toodeHind)
+values ('Coca-Cola2', 2.20);
+
+select * from toode;
+select * from logi;
+
+---delete triger, mis jälgib toode kustutamine tabelis
+create trigger toodeKustutamine
+on toode
+for delete
+as
+insert into logi(tegevus, kuupaev, andmed)
+select 'toode on kustutatud', 
+getdate(),
+concat(deleted.toodeNimetus, '| tegi kasutaja ', SYSTEM_USER)
+from deleted;
+--kontrooll
+delete from toode 
+where toodeID=3;
+
+---UPDATE triger, mis jälgib toode uuendamine tabelis
+
+create trigger toodeUuendamine
+on toode
+for update
+as
+insert into logi(tegevus, kuupaev, andmed)
+select 'toode on uuendatud', 
+getdate(),
+concat('Vanad andmed - ', deleted.toodeNimetus,', ', deleted.toodeHind,
+' Uued andmed - ', deleted.toodeNimetus,', ', deleted.toodeHind,
+'| tegi kasutaja ', SYSTEM_USER)
+from deleted inner join inserted
+on deleted.toodeID=inserted.toodeID;
+--kontrooll
+update toode set toodeHind=4.00
+where toodeNimetus='Fanta';
+
+	select * from toode;
+	select * from logi;
